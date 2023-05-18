@@ -1,51 +1,53 @@
 // Your code here.
-var itemsContainer = document.querySelector('.items');
-    var isDragging = false;
-    var startPosition = 0;
-    var currentTranslate = 0;
-    var prevTranslate = 0;
+const cubeContainer = document.querySelector(".items");
+const cubeWidth = cubeContainer.querySelector(".item").offsetWidth;
 
-    itemsContainer.addEventListener('mousedown', dragStart);
-    itemsContainer.addEventListener('mousemove', drag);
-    itemsContainer.addEventListener('mouseup', dragEnd);
-    itemsContainer.addEventListener('mouseleave', dragEnd);
+// Initialize drag variables
+let isDragging = false;
+let startPosition = 0;
+let currentTranslate = 0;
+let previousTranslate = 0;
 
-    itemsContainer.addEventListener('touchstart', dragStart);
-    itemsContainer.addEventListener('touchmove', drag);
-    itemsContainer.addEventListener('touchend', dragEnd);
-    itemsContainer.addEventListener('touchcancel', dragEnd);
+// Add event listeners for mouse and touch events
+cubeContainer.addEventListener("mousedown", dragStart);
+cubeContainer.addEventListener("touchstart", dragStart);
+cubeContainer.addEventListener("mouseup", dragEnd);
+cubeContainer.addEventListener("touchend", dragEnd);
+cubeContainer.addEventListener("mousemove", drag);
+cubeContainer.addEventListener("touchmove", drag);
 
-    function dragStart(event) {
-      if (event.type === 'touchstart') {
-        startPosition = event.touches[0].clientX;
-      } else {
-        startPosition = event.clientX;
-      }
+// Handle drag start event
+function dragStart(event) {
+  if (event.type === "touchstart") {
+    startPosition = event.touches[0].clientX;
+  } else {
+    startPosition = event.clientX;
+  }
+  isDragging = true;
+}
 
-      isDragging = true;
-      itemsContainer.classList.add('active');
+// Handle drag end event
+function dragEnd(event) {
+  isDragging = false;
+  previousTranslate = currentTranslate;
+}
+
+// Handle drag event
+function drag(event) {
+  if (isDragging) {
+    let currentPosition = 0;
+    if (event.type === "touchmove") {
+      currentPosition = event.touches[0].clientX;
+    } else {
+      currentPosition = event.clientX;
     }
-
-    function drag(event) {
-      if (!isDragging) return;
-
-      event.preventDefault();
-
-      var currentPosition = 0;
-      if (event.type === 'touchmove') {
-        currentPosition = event.touches[0].clientX;
-      } else {
-        currentPosition = event.clientX;
-      }
-
-      var diffPosition = currentPosition - startPosition;
-      currentTranslate = prevTranslate + diffPosition;
-
-      itemsContainer.style.transform = `translateX(${currentTranslate}px)`;
+    currentTranslate = previousTranslate + currentPosition - startPosition;
+    if (currentTranslate > 0) {
+      currentTranslate = 0;
     }
-
-    function dragEnd() {
-      isDragging = false;
-      itemsContainer.classList.remove('active');
-      prevTranslate = currentTranslate;
+    if (currentTranslate < -cubeWidth * (cubeContainer.children.length - 1)) {
+      currentTranslate = -cubeWidth * (cubeContainer.children.length - 1);
     }
+    cubeContainer.style.transform = `translateX(${currentTranslate}px)`;
+  }
+}
